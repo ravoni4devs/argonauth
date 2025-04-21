@@ -1,0 +1,26 @@
+# @MODULES=required
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.db
+*.test
+*.out
+*.pb.go
+.task
+
+go.work
+swagger.json
+swagger.yaml
+
+.envs/linux
+.envs/darwin
+.envs/windows
+.envs/testing
+
+/vendor/
+/Godeps/
+sdk/go_grpc/proto/
+sdk/js_grpcweb/main_*.js
+/mocks/
