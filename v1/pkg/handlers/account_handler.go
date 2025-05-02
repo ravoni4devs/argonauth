@@ -34,13 +34,20 @@ type AccountHandler struct {
 }
 
 func NewAccountHandler(params *Params) *AccountHandler {
+	var conf = params.Config()
 	return &AccountHandler{
+		conf:      conf,
+		params:    params,
 		log:       params.Logger(),
 		repos:     params.Repos(),
-		conf:      params.Config(),
-		params:    params,
 		cache:     datastores.New().MemoryCache(),
 		validator: validator.New(),
+		jwtManager: jwt.New(jwt.Config{
+			Secret:     conf.TokenSecret,
+			Audience:   conf.TokenAudience,
+			Issuer:     conf.TokenIssuer,
+			Expiration: conf.TokenExpiration,
+		}),
 	}
 }
 
@@ -102,7 +109,11 @@ func (h *AccountHandler) LoginWithCookie(c echo.Context) error {
 	}
 	c.SetCookie(cookie)
 	result := converters.NewUserConverter().FromModelToUserLoginResponse(found)
-	return c.JSON(http.StatusOK, res.Success(result))
+	response := map[string]any{
+		"id": result.ID,
+		"user":  result,
+	}
+	return c.JSON(http.StatusOK, res.Success(response))
 }
 
 func (h *AccountHandler) Login(c echo.Context) error {
@@ -119,23 +130,33 @@ func (h *AccountHandler) Login(c echo.Context) error {
 		return c.JSON(customerror.StatusCodeFrom(err), res.Fail(err))
 	}
 	result := converters.NewUserConverter().FromModelToUserLoginResponse(found)
+	if h.conf.ReturnUserRoles {
+		result.Roles = found.Roles()
+	}
 	response := map[string]any{
 		"token": token,
+		"id": result.ID,
 		"user":  result,
 	}
 	return c.JSON(http.StatusOK, res.Success(response))
 }
 
 func (h *AccountHandler) Logout(c echo.Context) error {
-	userID := c.Get(h.conf.GetUserKey()).(string)
+	userIDContext := c.Get(h.conf.GetUserKey())
+	if userIDContext == nil {
+		return c.JSON(http.StatusPreconditionFailed, "user ID not in context")
+	}
+	userID := userIDContext.(string)
 	_, ok := h.cache.Get(userID)
 	if ok {
 		h.cache.Delete(userID)
 	}
 	cookie := h.cookie()
-	cookie.MaxAge = -1
-	cookie.Expires = time.Now().Add(time.Second * -1)
-	c.SetCookie(cookie)
+	if cookie != nil {
+		cookie.MaxAge = -1
+		cookie.Expires = time.Now().Add(time.Second * -1)
+		c.SetCookie(cookie)
+	}
 	return c.JSON(http.StatusNoContent, nil)
 }
 

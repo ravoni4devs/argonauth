@@ -12,7 +12,7 @@ import (
 type httpResponse struct {
 	Error struct {
 		Message string `json:"message"`
-	} `json:"error,omitempty"`
+	} `json:"error,omitzero"`
 }
 
 func (r *httpResponse) Fail(err error) *httpResponse {
@@ -29,8 +29,9 @@ var httpMethods = map[string]Action{
 }
 
 type RoleMiddlewareConfig struct {
-	Skipper   func(c echo.Context) bool
-	Mandatory []Action
+	Skipper        func(c echo.Context) bool
+	Mandatory      []Action
+	ContextRoleKey string
 }
 
 func RoleMiddleware() echo.MiddlewareFunc {
@@ -49,7 +50,7 @@ func RoleMiddlewareWithConfig(config RoleMiddlewareConfig) echo.MiddlewareFunc {
 			}
 
 			var res = &httpResponse{}
-			roles, ok := c.Get("roles").(string)
+			roles, ok := c.Get(config.ContextRoleKey).(string)
 			if !ok {
 				return c.JSON(http.StatusForbidden, res.Fail(errors.New("roles not found")))
 			}

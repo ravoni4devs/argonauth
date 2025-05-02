@@ -52,6 +52,7 @@ type UserLoginResponse struct {
 	Email  string `json:"email"`
 	Avatar string `json:"avatar"`
 	Salt   string `json:"salt"`
+	Roles  string `json:"roles,omitzero"`
 }
 
 type UserUpdateRequest struct {

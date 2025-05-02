@@ -48,6 +48,7 @@ func main() {
         argonauth.UseCache(),
         argonauth.EnableDebug(),
         argonauth.SetSqlite("database.db"),
+		argonauth.EnableUserRolesInResponse(),
         argonauth.SetGroupOptions(argonauth.GroupOptions{
             DefaultGroupName:      "Guests",
             DefaultAdminGroupName: "Authors",
@@ -63,12 +64,13 @@ func main() {
     // Register setup handlers for create database and admin user
     auth.RegisterSetupHandlers(e.Group("/web/setup/finish"))
 
-    // Register default authentication handlers
-    auth.RegisterDefaultHandlers(e)
+    // Register default authentication handlers and apply middlewares
+	privateRouter := router.Group("/api/private")
+	privateRouter.Use(auth.VerifyTokenInHeaderMiddleware())
+	auth.RegisterDefaultPrivateHandlers(privateRouter)
 
-    // Apply middleware for JWT validation and RBAC
-    auth.UseDefaultJwtCookieMiddleware(e)
-    auth.UseDefaultRbacMiddleware(e)
+	publicRouter := router.Group("/api/public")
+	auth.RegisterDefaultPublicHandlers(publicRouter)
 
     // Start the server
     e.Start(":8080")
@@ -78,6 +80,7 @@ func main() {
 ### Explanation of Options
 
 - EnableStatefulAuth(): Enables stateful authentication, storing session on cookie
+- EnableUserRolesInResponse(): Enables returning roles on login response. Useful to use on front-end apps.
 - UseCache(): Enables caching for improved performance getting user's roles.
 - EnableDebug(): Turns on log messages for troubleshooting.
 - SetSqlite("database.db"): Configures SQLite as the database (alternatively, use SetPostgres or SetMysql).
@@ -85,6 +88,9 @@ func main() {
 - SetTokenOptions: Configures JWT token settings (secret, expiration, audience, issuer).
 
 ### API Endpoints
+
+Note: The routes /argonauth/private and /argonauth/public are used in the examples for demonstration purposes only. 
+You can replace them with any route structure that fits your application.
 
 After registering handlers, Argonauth provides the following endpoints:
 
@@ -99,7 +105,7 @@ These endpoints are accessible without authentication:
 
 #### Private Endpoints (/argonauth/private)
 
-These endpoints require authentication and appropriate RBAC permissions:
+These private endpoints require authentication and appropriate RBAC permissions:
 
 **User Management**
 
@@ -107,6 +113,7 @@ These endpoints require authentication and appropriate RBAC permissions:
 - `PUT /argonauth/private/user/update/:id`: Update a user by ID.
 - `PUT /argonauth/private/user/:id/membership`: Set memberships for a user by ID.
 - `GET /argonauth/private/user/me`: Get the authenticated user's details (whoami).
+- `DELETE /argonauth/private/user/logout`: Remove users from cache.
 
 **Group Management**
 

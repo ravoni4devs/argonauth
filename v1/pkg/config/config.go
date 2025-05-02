@@ -15,6 +15,7 @@ type Config struct {
 	DisableStatelessAuth  bool
 	DefaultGroupName      string
 	DefaultAdminGroupName string
+	ReturnUserRoles       bool
 }
 
 func (c Config) GetCookieName() string {

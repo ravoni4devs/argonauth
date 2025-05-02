@@ -101,9 +101,12 @@ func configureSetup(e *echo.Echo, auth argonauth.ArgonAuth) {
 }
 
 func configureRouter(e *echo.Echo, auth argonauth.ArgonAuth) {
-	auth.RegisterDefaultHandlers(e)
-	auth.UseDefaultJwtCookieMiddleware(e)
-	auth.UseDefaultRbacMiddleware(e)
+	privateRouter := e.Group("/api/private")
+	privateRouter.Use(auth.VerifyTokenInHeaderMiddleware())
+	auth.RegisterDefaultPrivateHandlers(privateRouter)
+
+	publicRouter := e.Group("/api/public")
+	auth.RegisterDefaultPublicHandlers(publicRouter)
 }
 
 func getHttpServer() *echo.Echo {

@@ -13,10 +13,12 @@ type Logger interface {
 
 type ArgonAuth interface {
 	RegisterSetupHandlers(group *echo.Group)
-	RegisterDefaultHandlers(e *echo.Echo)
-	UseDefaultJwtCookieMiddleware(e *echo.Echo)
-	UseDefaultRbacMiddleware(e *echo.Echo)
-	RegisterHandlers(group *echo.Group, routers RouterMap)
+	RegisterDefaultPublicHandlers(group *echo.Group)
+	RegisterDefaultPrivateHandlers(group *echo.Group)
+	RegisterHandlers(group *echo.Group, router RouterMap)
 	Account(input ...types.AccountService) types.AccountService
 	SetupHandler(c echo.Context) error
+	VerifyTokenInCookieMiddleware() func(echo.HandlerFunc) echo.HandlerFunc
+	VerifyTokenInHeaderMiddleware() func(echo.HandlerFunc) echo.HandlerFunc
+	VerifyRolesMiddleware() func(echo.HandlerFunc) echo.HandlerFunc
 }

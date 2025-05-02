@@ -1,0 +1,47 @@
+{
+    "name": "@ravoni4devs/argonauth-vuetify-plugin",
+    "version": "0.0.1",
+    "description": "A secure Vuetify 3 login form component using libcryptus",
+    "main": "dist/argonauth-vuetify-plugin.es.js",
+    "module": "dist/argonauth-vuetify-plugin.es.js",
+    "types": "dist/index.d.ts",
+    "exports": {
+        ".": {
+            "import": "./dist/argonauth-vuetify-plugin.es.js"
+        },
+        "./components/*": "./src/components/*"
+    },
+    "scripts": {
+        "build": "vite build",
+        "example": "cd example && npm install && npm run dev"
+    },
+    "keywords": [
+        "vue",
+        "vuetify",
+        "authentication",
+        "login",
+        "encryption"
+    ],
+    "author": "ravoni4devs",
+    "license": "MIT",
+    "dependencies": {
+        "@ravoni4devs/libcryptus": "^0.0.8",
+        "axios": "^1.9.0",
+        "idb": "^8.0.2",
+        "pinia": "^3.0.2",
+        "vue": "^3.4.0",
+        "vuetify": "^3.7.2"
+    },
+    "peerDependencies": {
+        "vue": "^3.4.0",
+        "vuetify": "^3.7.2"
+    },
+    "devDependencies": {
+        "@vitejs/plugin-vue": "^5.0.0",
+        "typescript": "^5.8.3",
+        "unplugin-fonts": "^1.3.1",
+        "unplugin-vue-components": "^28.5.0",
+        "vite": "^6.3.3",
+        "vite-plugin-vuetify": "^2.1.1"
+    }
+}

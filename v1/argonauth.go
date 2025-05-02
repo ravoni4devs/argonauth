@@ -17,11 +17,6 @@ import (
 	"github.com/ravoni4devs/argonauth/v1/pkg/types"
 )
 
-const (
-	basePublicEndpoint  = "/argonauth/public"
-	basePrivateEndpoint = "/argonauth/private"
-)
-
 type argonAuth struct {
 	conf           *config.Config
 	log            Logger
@@ -77,8 +72,7 @@ func (aa *argonAuth) RegisterSetupHandlers(group *echo.Group) {
 	aa.RegisterHandlers(group, routers)
 }
 
-func (aa *argonAuth) RegisterDefaultHandlers(e *echo.Echo) {
-	var public = e.Group(basePublicEndpoint)
+func (aa *argonAuth) RegisterDefaultPublicHandlers(public *echo.Group) {
 	var routers = RouterMap{
 		"/account/register": Router{
 			HttpMethod: http.MethodPost,
@@ -102,9 +96,14 @@ func (aa *argonAuth) RegisterDefaultHandlers(e *echo.Echo) {
 		}
 	}
 	aa.RegisterHandlers(public, routers)
+}
 
-	var private = e.Group(basePrivateEndpoint)
-	routers = RouterMap{
+func (aa *argonAuth) RegisterDefaultPrivateHandlers(private *echo.Group) {
+	var routers = RouterMap{
+		"/user/logout": Router{
+			HttpMethod: http.MethodDelete,
+			Handler:    aa.accountHandler.Logout,
+		},
 		"/user/search": Router{
 			HttpMethod: http.MethodPost,
 			Handler:    aa.userHandler.Search,
@@ -171,19 +170,19 @@ func (aa *argonAuth) RegisterDefaultHandlers(e *echo.Echo) {
 	aa.RegisterHandlers(private, routers)
 }
 
-func (aa *argonAuth) UseDefaultJwtCookieMiddleware(e *echo.Echo) {
-	if aa.conf.EnableStatefulAuth {
-		e.Group(basePrivateEndpoint, aa.accountHandler.VerifyTokenInCookie)
-	}
-	if !aa.conf.DisableStatelessAuth {
-		e.Group(basePrivateEndpoint, aa.accountHandler.VerifyTokenInHeader)
-	}
+func (aa *argonAuth) VerifyTokenInCookieMiddleware() func(echo.HandlerFunc) echo.HandlerFunc {
+	return aa.accountHandler.VerifyTokenInCookie
 }
 
-func (aa *argonAuth) UseDefaultRbacMiddleware(e *echo.Echo) {
-	e.Group(basePrivateEndpoint, rbac.RoleMiddlewareWithConfig(rbac.RoleMiddlewareConfig{
-		Mandatory: []rbac.Action{rbac.Management},
-	}))
+func (aa *argonAuth) VerifyTokenInHeaderMiddleware() func(echo.HandlerFunc) echo.HandlerFunc {
+	return aa.accountHandler.VerifyTokenInHeader
+}
+
+func (aa *argonAuth) VerifyRolesMiddleware() func(echo.HandlerFunc) echo.HandlerFunc {
+	return rbac.RoleMiddlewareWithConfig(rbac.RoleMiddlewareConfig{
+		Mandatory:      []rbac.Action{rbac.Management},
+		ContextRoleKey: aa.conf.GetRolesKey(),
+	})
 }
 
 func (aa *argonAuth) RegisterHandlers(group *echo.Group, routers RouterMap) {

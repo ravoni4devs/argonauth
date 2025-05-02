@@ -24,3 +24,4 @@ swagger.yaml
 sdk/go_grpc/proto/
 sdk/js_grpcweb/main_*.js
 /mocks/
+node_modules

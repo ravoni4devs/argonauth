@@ -61,6 +61,14 @@ func EnableStatefulAuth() Option {
 	}
 }
 
+
+func EnableUserRolesInResponse() Option {
+	return func(a *argonAuth) error {
+		a.conf.ReturnUserRoles = true
+		return nil
+	}
+}
+
 func DisableStatelessAuth() Option {
 	return func(a *argonAuth) error {
 		a.conf.DisableStatelessAuth = false
