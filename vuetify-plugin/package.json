@@ -13,6 +13,7 @@
     },
     "scripts": {
         "build": "vite build",
+        "deploy": "npm publish --access public",
         "example": "cd example && npm install && npm run dev"
     },
     "keywords": [
