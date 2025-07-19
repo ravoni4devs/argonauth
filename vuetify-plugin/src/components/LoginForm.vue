@@ -107,7 +107,7 @@ const props = defineProps({
     required: false,
     default: {
       subtitle: '',
-      submitButtonLabel: 'Continue22',
+      submitButtonLabel: 'Continue',
       registerText: '',
       registerButtonLabel: '',
       emailIcon: 'mdi-email-outline',
