@@ -35,7 +35,7 @@ export const useUserStore = defineStore('user', {
         salt: state.salt
     }),
     isPreLoginDone: (state) => {
-      return state.id.length > 0 && `${state.salt}`.length > 0
+      return state.id && state.id.length > 0 && state.salt && `${state.salt}`.length > 0
     },
     user(state) {
       return {

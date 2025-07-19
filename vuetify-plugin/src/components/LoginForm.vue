@@ -8,12 +8,12 @@
 
       <v-form @submit.prevent="preLogin" v-if="!store.isPreLoginDone">
         <v-card-subtitle class="text-center mb-6">
-          {{ props.step1Subtitle }}
+          {{ props.step1.subtitle }}
         </v-card-subtitle>
         <v-text-field
           v-model="form.email"
           label="Email"
-          prepend-inner-icon="mdi-email-outline"
+          :prepend-inner-icon="props.step1.emailIcon"
           variant="outlined"
           :disabled="form.loading"
           autofocus
@@ -27,28 +27,28 @@
           type="submit"
           class="mt-6"
         >
-          {{ props.step1SubmitButtonLabel }}
+          {{ props.step1.submitButtonLabel }}
         </v-btn>
 
         <div class="text-center mt-6" v-if="hasRegister">
-          <span class="text-body-2">{{ props.registerText }}</span>
-          <a href="#" class="text-decoration-none">{{ props.registerButtonLabel }}</a>
+          <span class="text-body-2">{{ props.step1.registerText }}</span>
+          <a href="#" class="text-decoration-none">{{ props.step1.registerButtonLabel }}</a>
         </div>
       </v-form>
       <v-form v-else-if="store.isPreLoginDone" @submit.prevent="login">
         <v-card-subtitle class="text-center mb-6">
           <div class="d-flex align-center justify-center mb-2">
-            <v-icon color="primary" class="mr-2">mdi-account-circle</v-icon>
+            <v-icon color="primary" class="mr-2">{{ props.step2.accountIcon }}</v-icon>
             <span>{{ form.email }}</span>
           </div>
-          {{ props.step2Subtitle }}
+          {{ props.step2.subtitle }}
         </v-card-subtitle>
         <v-text-field
           v-model="form.password"
-          :append-inner-icon="isPasswordVisible ? 'mdi-eye-off' : 'mdi-eye'"
+          :append-inner-icon="isPasswordVisible ? props.step2.passwordHiddenIcon : props.step2.passwordVisibleIcon"
           :type="isPasswordVisible ? 'text' : 'password'"
           label="Password"
-          prepend-inner-icon="mdi-lock-outline"
+          :prepend-inner-icon="props.step2.passwordIcon"
           variant="outlined"
           autofocus
           required
@@ -63,7 +63,7 @@
             :loading="form.loading"
             type="submit"
           >
-            {{ props.step2SubmitButtonLabel }}
+            {{ props.step2.submitButtonLabel }}
           </v-btn>
 
           <v-btn
@@ -71,13 +71,13 @@
             :disabled="form.loading"
             block
           >
-            {{ props.backButtonLabel }}
+            {{ props.step2.backButtonLabel }}
           </v-btn>
         </div>
 
-        <div class="text-center mt-6" v-if="props.forgotPasswordText">
-          {{ props.forgotPasswordText }}
-          <a href="#" class="text-decoration-none">{{ props.forgotPasswordButtonLabel }}</a>
+        <div class="text-center mt-6" v-if="props.forgotPassword.text">
+          {{ props.forgotPassword.text }}
+          <a href="#" class="text-decoration-none">{{ props.forgotPassword.buttonLabel }}</a>
         </div>
       </v-form>
     </v-card>
@@ -88,7 +88,7 @@
 <script setup>
 import { ref, inject, defineProps, defineExpose, computed } from 'vue'
 
-import {useUserStore} from '@/stores/user'
+import { useUserStore } from '@/stores/user'
 const store = useUserStore()
 
 const controller = inject('argonauth')
@@ -102,83 +102,62 @@ const props = defineProps({
     default: ''
   },
   
-  step1Subtitle: {
-    type: String,
+  step1: {
+    type: Object,
     required: false,
-    default: ''
+    default: {
+      subtitle: '',
+      submitButtonLabel: 'Continue22',
+      registerText: '',
+      registerButtonLabel: '',
+      emailIcon: 'mdi-email-outline',
+    }
   },
   
-  step2Subtitle: {
-    type: String,
+  step2: {
+    type: Object,
     required: false,
-    default: ''
+    default: {
+      subtitle: '',
+      submitButtonLabel: 'Login',
+      backButtonLabel: 'Back',
+      loginText: '',
+      loginButtonLabel: '',
+      accountIcon: 'mdi-account-circle',
+      passwordVisibleIcon: 'mdi-eye',
+      passwordHiddenIcon: 'mdi-eye-off',
+      passwordIcon: 'mdi-lock-outline',
+    }
   },
   
-  step1SubmitButtonLabel: {
-    type: String,
-    required: false,
-    default: 'Continue'
-  },
   
-  step2SubmitButtonLabel: {
-    type: String,
+  forgotPassword: {
+    type: Object,
     required: false,
-    default: 'Login'
-  },
-  
-  backButtonLabel: {
-    type: String,
-    required: false,
-    default: 'Back'
-  },
-  
-  registerText: {
-    type: String,
-    required: false,
-    default: ''
-  },
-  
-  registerButtonLabel: {
-    type: String,
-    required: false,
-    default: ''
-  },
-  
-  loginText: {
-    type: String,
-    required: false,
-    default: ''
-  },
-  
-  loginButtonLabel: {
-    type: String,
-    required: false,
-    default: ''
-  },
-  
-  forgotPasswordText: {
-    type: String,
-    required: false,
-    default: ''
-  },
-  
-  forgotPasswordButtonLabel: {
-    type: String,
-    required: false,
-    default: ''
+    default: {
+      text: '',
+      buttonLabel: ''
+    }
   },
 
   noSnackBar: {
     type: Boolean,
     required: false,
     default: false
+  },
+
+  actions: {
+    type: Object,
+    required: false,
+    default: {}
   }
 })
 
 defineExpose({ preLogin, login })
 
 const hasRegister = computed(() => {
-  return props.registerText && props.registerButtonLabel
+  const step1 = props.step1 || {}
+  return step1.registerText && step1.registerButtonLabel
 })
 
 const snackbar = ref()
@@ -190,6 +169,10 @@ const form = ref({
 const isPasswordVisible = ref(false)
 
 async function preLogin() {
+  if (props.actions.preLogin) {
+    props.actions.preLogin(store, form.value.email)
+    return
+  }
   try {
     form.value.loading = true
     const user = await controller.preLogin(form.value.email)
@@ -211,6 +194,10 @@ async function preLogin() {
 }
 
 async function login() {
+  if (props.actions.login) {
+    props.actions.login(store, form.value.password)
+    return
+  }
   try {
     form.value.loading = true
     const user = store.preLoginInfo
@@ -220,8 +207,8 @@ async function login() {
     emit('on-step2-success', account)
   } catch (err) {
     const messages = {
-      403: 'Usuário ou senha incorretos',
-      423: 'Conta bloqueada'
+      403: 'Wrong email or password',
+      423: 'Account is locked'
     }
     let message = err.error ? err.error.message : err
     if (err && err.code) {
@@ -237,6 +224,10 @@ async function login() {
 }
 
 async function logout() {
+  if (props.actions.logout) {
+    props.actions.logout(store)
+    return
+  }
   try {
     form.value.loading = true
     store.clear()
