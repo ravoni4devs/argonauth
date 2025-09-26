@@ -102,7 +102,7 @@ import {
 <script setup>
 import { inject } from 'vue'
 
-const controller = inject('argonauth')
+const service = inject('argonAuthService')
 
 const form = ref({
   email: 'me@mail.com',
@@ -116,7 +116,7 @@ const user = ref({
 
 async function preLogin() {
    try {
-     const found = await controller.preLogin(form.value.email)
+     const found = await service.preLogin(form.value.email)
      user.value.id = found.id
      user.value.email = found.email
    } catch(err) {
@@ -128,7 +128,7 @@ async function login() {
    try {
      const auth = {...user.value}
      auth.password = form.password
-     const account = controller.login(auth)
+     const account = service.login(auth)
      // redirect to authenticated area
    } catch(err) {
      console.error(err)

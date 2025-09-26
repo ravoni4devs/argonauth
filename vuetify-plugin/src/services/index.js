@@ -1,12 +1,12 @@
 import Cryptus from '@ravoni4devs/libcryptus'
 
-import useStorage from '@/drivers/storage.js'
-import useIndexdb from '@/drivers/indexdb.js'
-import useHttpClient from '@/drivers/httpClient.js'
+import useStorage from '@/infra/storage.js'
+import useIndexdb from '@/infra/indexdb.js'
+import useHttpClient from '@/infra/httpClient.js'
 
 const key = 'user_id'
 
-class Controller {
+class ArgonauthService {
   constructor ({ httpClient, indexdb, storage, endpoints }) {
     this.$db = indexdb
     this.$httpClient = httpClient
@@ -66,5 +66,5 @@ export default function ({ dbName='argonauth', baseURL='', endpoints={} } = {}) 
   const storage = useStorage()
   const indexdb = useIndexdb({ name: dbName, table: 'argonauth' })
   const httpClient = useHttpClient({ baseURL, withCredentials: true })
-  return new Controller({ storage, indexdb, httpClient, endpoints })
+  return new ArgonauthService({ storage, indexdb, httpClient, endpoints })
 }

@@ -91,7 +91,7 @@ import { ref, inject, defineProps, defineExpose, computed } from 'vue'
 import { useUserStore } from '@/stores/user'
 const store = useUserStore()
 
-const controller = inject('argonauth')
+const service = inject('argonAuthService')
 
 import SystemMessage from './SystemMessage.vue';
 
@@ -129,7 +129,6 @@ const props = defineProps({
       passwordIcon: 'mdi-lock-outline',
     }
   },
-  
   
   forgotPassword: {
     type: Object,
@@ -175,7 +174,7 @@ async function preLogin() {
   }
   try {
     form.value.loading = true
-    const user = await controller.preLogin(form.value.email)
+    const user = await service.preLogin(form.value.email)
     store.setPreLoginInfo(user)
     emit('on-step1-success', user)
   } catch (err) {
@@ -202,7 +201,7 @@ async function login() {
     form.value.loading = true
     const user = store.preLoginInfo
     user.rawPassword = form.value.password
-    const account = await controller.login(user)
+    const account = await service.login(user)
     store.setUser(account)
     emit('on-step2-success', account)
   } catch (err) {
@@ -231,7 +230,7 @@ async function logout() {
   try {
     form.value.loading = true
     store.clear()
-    await controller.logout()
+    await service.logout()
   } catch (err) {
   } finally {
     form.value.loading = false

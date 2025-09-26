@@ -16,7 +16,7 @@ import { VBtn } from 'vuetify/components'
 import {useUserStore} from '@/stores/user'
 const store = useUserStore()
 
-const controller = inject('argonauth')
+const service = inject('argonAuthService')
 
 const emit = defineEmits(['on-success', 'on-failed'])
 const attrs = useAttrs()
@@ -34,7 +34,7 @@ Object.entries(instance.vnode.props || {}).forEach(([key, value]) => {
 const onClick = async (e) => {
   if (attrs.onClick) attrs.onClick(e)
   try {
-    await controller.logout()
+    await service.logout()
     store.clear()
     emit('on-success')
   } catch(err) {

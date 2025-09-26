@@ -1,4 +1,4 @@
-import makeController from '@/controllers'
+import makeService from '@/services'
 import createPinia from '@/stores'
 const pinia = createPinia()
 
@@ -7,26 +7,26 @@ import {useUserStore} from '@/stores/user'
 import LoginForm from '@/components/LoginForm.vue'
 import LogoutButton from '@/components/LogoutButton.vue'
 
-let argonauthController = null
+let argonAuthService = null
 const Plugin = {
   install(app, options = {}) {
     app.use(pinia)
 
-    app.component('ArgonauthForm', LoginForm)
-    app.component('ArgonauthLogoutButton', LogoutButton)
+    app.component('ArgonAuthForm', LoginForm)
+    app.component('ArgonAuthLogoutButton', LogoutButton)
 
-    app.provide('argonauthStore', useUserStore())
+    app.provide('argonAuthStore', useUserStore())
 
-    const controller = makeController({
+    const service = makeService({
       baseURL: options.baseURL,
       dbName: options.dbName,
       endpoints: options.endpoints,
     })
-    app.provide('argonauth', controller)
-    app.provide('argonauthController', controller)  // usage: controller = inject('argonauthController')
-    argonauthController = controller
+    app.provide('argonAuth', service)         // usage: service = inject('argonauth')
+    app.provide('argonAuthService', service)  // usage: service = inject('argonauthService')
+    argonAuthService = service
   }
 }
 
-export { LoginForm, makeController, Plugin, argonauthController }
+export { LoginForm, makeService, Plugin, argonAuthService }
 export default Plugin
