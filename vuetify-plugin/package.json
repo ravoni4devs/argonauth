@@ -1,6 +1,6 @@
 {
     "name": "@ravoni4devs/argonauth-vuetify-plugin",
-    "version": "0.0.4",
+    "version": "0.0.5",
     "description": "A secure Vuetify 3 login form component using libcryptus",
     "main": "dist/argonauth-vuetify-plugin.es.js",
     "module": "dist/argonauth-vuetify-plugin.es.js",

@@ -10369,23 +10369,20 @@ const $v = ["color", "file", "time", "date", "datetime-local", "week", "month"],
       _: 3
     }, 16));
   }
-}, Xv = dd();
-let Zv = null;
-const tm = {
+}, Xv = dd(), em = {
   install(e, t = {}) {
     e.use(Xv), e.component("ArgonAuthForm", qv), e.component("ArgonAuthLogoutButton", Yv), e.provide("argonAuthStore", er());
-    const n = zl({
+    const n = t.service || zl({
       baseURL: t.baseURL,
       dbName: t.dbName,
       endpoints: t.endpoints
     });
-    e.provide("argonAuth", n), e.provide("argonAuthService", n), Zv = n;
+    e.provide("argonAuthService", n);
   }
 };
 export {
   qv as LoginForm,
-  tm as Plugin,
-  Zv as argonAuthService,
-  tm as default,
+  em as Plugin,
+  em as default,
   zl as makeService
 };

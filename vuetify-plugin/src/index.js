@@ -7,7 +7,6 @@ import {useUserStore} from '@/stores/user'
 import LoginForm from '@/components/LoginForm.vue'
 import LogoutButton from '@/components/LogoutButton.vue'
 
-let argonAuthService = null
 const Plugin = {
   install(app, options = {}) {
     app.use(pinia)
@@ -17,16 +16,14 @@ const Plugin = {
 
     app.provide('argonAuthStore', useUserStore())
 
-    const service = makeService({
+    const service = options.service || makeService({
       baseURL: options.baseURL,
       dbName: options.dbName,
       endpoints: options.endpoints,
     })
-    app.provide('argonAuth', service)         // usage: service = inject('argonauth')
     app.provide('argonAuthService', service)  // usage: service = inject('argonauthService')
-    argonAuthService = service
   }
 }
 
-export { LoginForm, makeService, Plugin, argonAuthService }
+export { LoginForm, makeService, Plugin }
 export default Plugin

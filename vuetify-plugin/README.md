@@ -37,6 +37,27 @@ export function registerPlugins (app) {
     },
   })
 }
+
+// --- or ---
+
+import ArgonauthVuetifyPlugin, { makeService } from '@ravoni4devs/argonauth-vuetify-plugin'
+export function registerPlugins (app) {
+  const argonAuthService = makeService({
+      dbName: 'myapp',
+      baseURL: 'http://localhost:8001',
+      endpoints: {
+        preLogin: '/api/public/account/prelogin',
+        login: '/api/public/account/loginweb',
+        logout: '/api/private/user/logout',
+        whoami: '/api/private/user/me',
+      },
+  })
+  app
+    .use(vuetify)
+    .use(router)
+
+  app.use(ArgonauthVuetifyPlugin, { service: argonAuthService })
+}
 ```
 
 ### Use default form and logout button components
